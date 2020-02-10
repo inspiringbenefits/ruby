@@ -2,8 +2,13 @@ FROM ruby:2.2.1-slim
 LABEL maintainer="developer@inspiringbenefits.com"
 
 RUN set -eux; \
+  curl -sL https://deb.nodesource.com/setup_13.x | bash -; \
+  curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -; \
+  echo "deb https://dl.yarnpkg.com/debian/ stable main" \
+  | tee /etc/apt/sources.list.d/yarn.list; \
+
   apt-get update; \
-  apt-get install -y --no-install-recommends git build-essential libmysqlclient-dev; \
+  apt-get install -y --no-install-recommends git build-essential libmysqlclient-dev nodejs yarn; \
   rm -rf /var/lib/apt/lists/*; \
 
   mkdir /tmp/freetds; \
