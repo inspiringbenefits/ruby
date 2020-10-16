@@ -1,20 +1,22 @@
-FROM ruby:2.4.6-slim
+FROM ubuntu:14.04
 LABEL maintainer="developer@inspiringbenefits.com"
 
-RUN set -eux; \
-  apt-get update; \
-  apt-get install -y --no-install-recommends curl; \
-  curl -sL https://deb.nodesource.com/setup_13.x | bash -; \
-  curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -; \
-  echo "deb https://dl.yarnpkg.com/debian/ stable main" \
-  | tee /etc/apt/sources.list.d/yarn.list; \
-  apt-get update; \
-  apt-get install -y --no-install-recommends git build-essential default-libmysqlclient-dev nodejs yarn imagemagick freetds-dev; \
-  rm -rf /var/lib/apt/lists/*; \
-  mkdir /tmp/phantomjs; \
-  curl -L https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2 \
-  | tar -xj --strip-components=1 -C /tmp/phantomjs; \
-  mv /tmp/phantomjs/bin/phantomjs /usr/local/bin; \
-  rm -rf /tmp/phantomjs
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh 
+RUN \
+  apt-get update && \
+  apt-get install -y ruby ruby-dev ruby-bundler git software-properties-common autoconf bison build-essential libssl-dev libyaml-dev libreadline6-dev zlib1g-dev libncurses5-dev libffi-dev libgdbm3 libgdbm-dev wget
 
-CMD ["irb"]
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN git clone git://github.com/sstephenson/rbenv.git ~/.rbenv
+
+RUN echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bashrc && \
+  echo 'eval "$(rbenv init -)"' >> ~/.bashrc && \
+  exec $SHELL && \ 
+  git clone https://github.com/sstephenson/rbenv-gem-rehash.git ~/.rbenv/plugins/rbenv-gem-rehash
+RUN git clone git://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build
+RUN echo 'export PATH="$HOME/.rbenv/plugins/ruby-build/bin:$PATH"' >> ~/.bashrc
+RUN /root/.rbenv/bin/rbenv install 2.2.1 
+RUN /root/.rbenv/bin/rbenv global 2.2.1 
+
+CMD [ "irb" ]
