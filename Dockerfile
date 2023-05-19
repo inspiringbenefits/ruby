@@ -6,4 +6,7 @@ RUN apt-get update; \
 
 RUN apt-get install -y libpq-dev
 
+ADD ./CAs/* /usr/local/share/ca-certificates/
+RUN chmod 644 /usr/local/share/ca-certificates/* && update-ca-certificates
+
 CMD ["irb"]
